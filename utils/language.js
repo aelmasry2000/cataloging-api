@@ -1,4 +1,4 @@
-import franc from 'franc';
+import { franc } from 'franc';
 
 export function detectLanguage(text) {
   const lang = franc(text);
