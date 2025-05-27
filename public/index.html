@@ -1,32 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Upload PDF and Extract Text</title>
-    <style>
-        body { font-family: Arial; background-color: #f8f9fa; text-align: center; }
-        form { background: white; padding: 20px; border-radius: 8px; display: inline-block; }
-        textarea { width: 100%; height: 200px; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Upload PDF, Extract Text, and Catalog</title>
+  <style>
+    body { font-family: Arial; background-color: #f8f9fa; text-align: center; padding: 40px; }
+    form {
+      background: white; padding: 20px; border-radius: 8px;
+      display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%; height: 200px; margin-top: 10px;
+      font-family: monospace; white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-    <h1>Upload PDF, Extract, and Send to Chat</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".pdf" required><br><br>
-        <button type="submit">Upload and Extract</button>
-    </form>
 
-    {% if extracted_text %}
-        <h2>Extracted Text</h2>
-        <textarea readonly>{{ extracted_text }}</textarea>
-    {% endif %}
+  <h1>Upload PDF, Extract, and Chat with Cataloging Bot</h1>
 
-    <h2>Chat with Cataloging Bot</h2>
-    <iframe
-        src="https://www.chatbase.co/chatbot-iframe/rSb7GdUSjw1kxi8igKkib"
-        width="100%"
-        style="height: 700px"
-        frameborder="0">
-    </iframe>
+  <form id="uploadForm">
+    <input type="file" name="file" id="fileInput" accept=".pdf" required><br><br>
+    <button type="submit">Upload and Extract</button>
+  </form>
+
+  <div id="output"></div>
+
+  <h2>Chat with Cataloging Bot</h2>
+  <iframe
+    src="https://www.chatbase.co/chatbot-iframe/rSb7GdUSjw1kxi8igKkib"
+    width="100%" style="height: 700px" frameborder="0">
+  </iframe>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const file = document.getElementById('fileInput').files[0];
+      const formData = new FormData();
+      formData.append('files', file); // Note: 'files' must match Express route
+
+      const res = await fetch('https://cataloging-api.onrender.com/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const results = await res.json();
+      const first = results[0];
+      document.getElementById('output').innerHTML = `
+        <h2>Extracted Summary</h2>
+        <textarea readonly>${first.summary}</textarea>
+        <p><strong>Language:</strong> ${first.language}</p>
+        <p><strong>Subjects:</strong> ${first.subjects.join(', ')}</p>
+      `;
+    });
+  </script>
+
 </body>
 </html>
