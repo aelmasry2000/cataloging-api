@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import pdf from 'pdf-parse';
+import { default as pdf } from 'pdf-parse';
 
 export async function extractText(filePath) {
   const ext = filePath.split('.').pop().toLowerCase();
